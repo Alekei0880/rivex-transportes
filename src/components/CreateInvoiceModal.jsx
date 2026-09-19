@@ -105,6 +105,18 @@ function getTemplateValue(formData, key) {
   return key.endsWith('fecha_hora') ? formatTemplateDate(value) : value?.trim?.() || value || '';
 }
 
+const placeholderExamples = {
+  transporte_internacional: 'No',
+  entrada_salida_mercancia: 'Entrada',
+  pais_origen_destino: 'México / Estados Unidos',
+  via_entrada_salida: 'Autotransporte',
+  total_distancia_recorrida: '850',
+  registro_istmo: 'ISTMO-0001',
+  ub1_id_ubicacion: 'OR000001', ub1_rfc: 'RIX010101ABC', ub1_nombre: 'Remitente de ejemplo', ub1_residencia_fiscal: 'MEX', ub1_numero_estacion: 'EST-001', ub1_nombre_estacion: 'Terminal de origen', ub1_navegacion_trafico: 'Altura', ub1_fecha_hora: 'Seleccione fecha', ub1_tipo_estacion: 'Intermedia', ub1_distancia_recorrida: '0', ub1_dom_cp: '64000', ub1_dom_estado: 'Nuevo León', ub1_dom_municipio: 'Monterrey', ub1_dom_localidad: 'Monterrey', ub1_dom_colonia: 'Centro', ub1_dom_calle: 'Av. Constitución', ub1_dom_num_ext: '100', ub1_dom_num_int: '1', ub1_dom_referencia: 'Frente a la terminal',
+  ub2_id_ubicacion: 'DE000001', ub2_rfc: 'CLI010101XYZ', ub2_nombre: 'Destinatario de ejemplo', ub2_residencia_fiscal: 'MEX', ub2_numero_estacion: 'EST-002', ub2_nombre_estacion: 'Terminal de destino', ub2_navegacion_trafico: 'Altura', ub2_fecha_hora: 'Seleccione fecha', ub2_tipo_estacion: 'Final', ub2_distancia_recorrida: '850', ub2_dom_cp: '44100', ub2_dom_estado: 'Jalisco', ub2_dom_municipio: 'Guadalajara', ub2_dom_localidad: 'Guadalajara', ub2_dom_colonia: 'Centro', ub2_dom_calle: 'Av. Juárez', ub2_dom_num_ext: '200', ub2_dom_int: '2', ub2_dom_referencia: 'Acceso principal',
+  peso_bruto_total: '18000', peso_neto_total: '17500', numero_total: '1', tipo_permiso_sct: 'TPAF01', num_permiso_sct: 'PERM-0001', configuracion_vehicular: 'C2', placa_vm: 'ABC-123-D', anio_modelo_vm: '2024', aseguradora_resp_civil: 'Aseguradora de ejemplo', poliza_resp_civil: 'POL-000001'
+};
+
 export default function CreateInvoiceModal({ isOpen, onClose, onSubmit }) {
   const [formData, setFormData] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -156,7 +168,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSubmit }) {
           <button type="button" onClick={onClose} aria-label="Cerrar formulario" className="text-gray-500 hover:text-gray-700"><X className="h-6 w-6" /></button>
         </div>
         <form onSubmit={(event) => { event.preventDefault(); generatePdf(); }} className="p-6 flex flex-col gap-8">
-          {sections.map(({ title, prefix = '', fields }) => <section key={title} className="flex flex-col gap-4"><h3 className="text-base font-semibold text-gray-900 border-b pb-2">{title}</h3><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{fields.map(([field, label, type]) => { const name = `${prefix}${field}`; const hasError = errors[name]; return <label key={name} className="flex flex-col gap-1 text-sm font-medium text-gray-700">{label}{requiredFields.includes(name) && <span className="text-red-600"> *</span>}<div className="relative"><input name={name} value={formData[name] || ''} onChange={handleChange} type={type === 'date' ? 'date' : 'text'} required={requiredFields.includes(name)} aria-invalid={Boolean(hasError)} className={`w-full rounded-lg border px-3 py-2 font-normal outline-none focus:ring-2 focus:ring-red-600 ${hasError ? 'border-red-500' : 'border-gray-300'}`} />{type === 'date' && <CalendarDays className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />}</div>{hasError && <span className="text-xs text-red-600">{hasError}</span>}</label>; })}</div></section>)}
+          {sections.map(({ title, prefix = '', fields }) => <section key={title} className="flex flex-col gap-4"><h3 className="text-base font-semibold text-gray-900 border-b pb-2">{title}</h3><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{fields.map(([field, label, type]) => { const name = `${prefix}${field}`; const hasError = errors[name]; return <label key={name} className="flex flex-col gap-1 text-sm font-medium text-gray-700">{label}{requiredFields.includes(name) && <span className="text-red-600"> *</span>}<div className="relative"><input name={name} value={formData[name] || ''} onChange={handleChange} type={type === 'date' ? 'date' : 'text'} placeholder={placeholderExamples[name] || ''} required={requiredFields.includes(name)} aria-invalid={Boolean(hasError)} className={`w-full rounded-lg border px-3 py-2 font-normal outline-none focus:ring-2 focus:ring-red-600 ${hasError ? 'border-red-500' : 'border-gray-300'}`} />{type === 'date' && <CalendarDays className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />}</div>{hasError && <span className="text-xs text-red-600">{hasError}</span>}</label>; })}</div></section>)}
           <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t"><Button type="button" variant="outline" onClick={onClose} className="flex-1">Cancelar</Button><Button type="submit" className="flex-1 bg-red-600 hover:bg-red-700 text-white"><Printer className="h-4 w-4 mr-2" />Generar PDF</Button></div>
         </form>
       </div>

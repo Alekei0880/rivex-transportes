@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, LogOut, Loader2, Search, ChevronDown } from 'lucide-react';
+import { Plus, LogOut, Loader2, Search, ChevronDown, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateInvoiceModal from '@/components/CreateInvoiceModal';
 import ContainerTable from '@/components/ContainerTable';
@@ -12,7 +12,7 @@ export default function Billing() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCartaPorteModal, setShowCartaPorteModal] = useState(false);
   const [containers, setContainers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
@@ -108,7 +108,7 @@ export default function Billing() {
     // Por ahora solo mostrar en consola
     console.log('[v0] Nueva factura:', invoiceData);
     // Aquí se conectaría a la API de creación
-    setShowCreateModal(false);
+    setShowCartaPorteModal(false);
   };
 
   const filteredContainers = containers.filter((container) => {
@@ -234,14 +234,26 @@ export default function Billing() {
               </div>
             </div>
 
-            {/* Create Button */}
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva Factura
-            </Button>
+            {/* Billing actions */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                type="button"
+                onClick={() => console.info('[v0] Nueva factura pendiente de conexión')}
+                variant="outline"
+                className="whitespace-nowrap"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nueva Factura
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setShowCartaPorteModal(true)}
+                className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Nueva Carta Porte
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -250,10 +262,10 @@ export default function Billing() {
       </div>
 
       {/* Create Invoice Modal */}
-      {showCreateModal && (
+      {showCartaPorteModal && (
         <CreateInvoiceModal
-          isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
+          isOpen={showCartaPorteModal}
+          onClose={() => setShowCartaPorteModal(false)}
           onSubmit={handleCreateInvoice}
         />
       )}
