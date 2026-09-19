@@ -31,6 +31,22 @@ function replaceTemplateValue(html, oldValue, newValue) {
   return html.split(oldValue).join(esc(newValue));
 }
 
+function replaceTemplateField(html, field, value, fallback) {
+  const renderedValue = value || fallback || '';
+  const safeValue = esc(renderedValue);
+  const templateNames = [field, field.replaceAll('_', '.')];
+  let output = html;
+
+  templateNames.forEach((templateName) => {
+    const marker = new RegExp(`\\{\\{\\s*${templateName.replaceAll('.', '\\\\.')}\\s*\\}\\}`, 'g');
+    output = output.replace(marker, safeValue);
+  });
+
+  // Some exported versions of the template contain the default text instead
+  // of a marker. Keep support for both formats without altering other values.
+  return replaceTemplateValue(output, fallback, renderedValue);
+}
+
 export default function CreateInvoiceModal({ isOpen, onClose, onSubmit }) {
   const [form, setForm] = useState(initialForm);
   const [platforms, setPlatforms] = useState([{ subtipo: '', placa: '' }]);
@@ -57,7 +73,43 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSubmit }) {
     // El template ya contiene todos los datos no editables del script de Python.
     // Solo se sustituyen los valores que el usuario capturó; lo demás permanece intacto.
     Object.entries(values).forEach(([field, value]) => {
-      html = replaceTemplateValue(html, defaults[field], value);
+      html = replaceTemplateField(html, field, value, defaults[field]);
+    });
+
+    // El template Python usa estos nombres exactamente; se reemplazan también
+    // aunque el HTML haya sido exportado con espacios dentro de las llaves.
+    const pythonFields = {
+      'cp.total_distancia_recorrida': values.total_distancia_recorrida,
+      'ub1.rfc': values.ub1_rfc,
+      'ub1.nombre': values.ub1_nombre,
+      'ub1.fecha': values.ub1_fecha,
+      'ub1.dom.cp': values.ub1_dom_cp,
+      'ub1.dom.estado': values.ub1_dom_estado,
+      'ub1.dom.municipio': values.ub1_dom_municipio,
+      'ub1.dom.localidad': values.ub1_dom_localidad,
+      'ub1.dom.calle': values.ub1_dom_calle,
+      'ub2.rfc': values.ub2_rfc,
+      'ub2.nombre': values.ub2_nombre,
+      'ub2.fecha': values.ub2_fecha,
+      'ub2.dom.cp': values.ub2_dom_cp,
+      'ub2.dom.estado': values.ub2_dom_estado,
+      'ub2.dom.municipio': values.ub2_dom_municipio,
+      'ub2.dom.localidad': values.ub2_dom_localidad,
+      'ub2.dom.colonia': values.ub2_dom_colonia,
+      'ub2.dom.calle': values.ub2_dom_calle,
+      'merc.peso_bruto_total': values.peso_bruto_total,
+      'merc.peso_neto_total': values.peso_neto_total,
+      'merc.numero_total': values.numero_total,
+      'auto.placa_vm': values.placa_vm,
+      'auto.anio_modelo_vm': values.anio_modelo_vm,
+      'seg.aseg_resp_civil': values.aseguradora_resp_civil,
+      'seg.poiza_resp_civil': values.poliza_resp_civil,
+      'fig1.numero_licencia': values.numero_licencia,
+    };
+
+    Object.entries(pythonFields).forEach(([field, value]) => {
+      const marker = new RegExp(`\\{\\{\\\\s*${field.replaceAll('.', '\\\\.')}\\\\s*\\}\\}`, 'g');
+      html = html.replace(marker, esc(value));
     });
 
     html = replaceTemplateValue(html, '26VA5L', platforms[0].placa);
