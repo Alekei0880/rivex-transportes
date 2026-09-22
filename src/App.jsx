@@ -8,11 +8,12 @@ import Services from '@/pages/Services';
 import About from '@/pages/About';
 import Login from '@/pages/Login';
 import Billing from '@/pages/Billing';
+import DataRegistry from '@/pages/DataRegistry';
 import { Toaster } from '@/components/ui/toaster';
 
 function AppContent() {
   const location = useLocation();
-  const isPrivatePage = ['/login', '/facturacion'].includes(location.pathname);
+  const isPrivatePage = location.pathname === '/login' || location.pathname === '/facturacion' || location.pathname.startsWith('/registro/');
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">
@@ -25,6 +26,7 @@ function AppContent() {
             <Route path="/acerca-de" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/facturacion" element={<Billing />} />
+            <Route path="/registro/:table" element={<DataRegistry />} />
           </Routes>
         </AnimatePresence>
       </main>

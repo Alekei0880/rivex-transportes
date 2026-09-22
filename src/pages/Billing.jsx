@@ -3,16 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, LogOut, Loader2, Search, ChevronDown, FileText } from 'lucide-react';
+import { Plus, LogOut, Loader2, Search, ChevronDown, FileText, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateInvoiceModal from '@/components/CreateInvoiceModal';
 import ContainerTable from '@/components/ContainerTable';
+import RegisterDataModal from '@/components/RegisterDataModal';
 
 export default function Billing() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCartaPorteModal, setShowCartaPorteModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [containers, setContainers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
@@ -247,6 +249,15 @@ export default function Billing() {
               </Button>
               <Button
                 type="button"
+                onClick={() => setShowRegisterModal(true)}
+                variant="outline"
+                className="whitespace-nowrap border-slate-300 text-slate-700 hover:bg-slate-50"
+              >
+                <Database className="h-4 w-4 mr-2" />
+                Registrar datos
+              </Button>
+              <Button
+                type="button"
                 onClick={() => setShowCartaPorteModal(true)}
                 className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap"
               >
@@ -260,6 +271,15 @@ export default function Billing() {
         {/* Containers Table */}
         <ContainerTable containers={filteredContainers} />
       </div>
+
+      <RegisterDataModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+        onContinue={(table) => {
+          setShowRegisterModal(false);
+          navigate(`/registro/${table}`);
+        }}
+      />
 
       {/* Create Invoice Modal */}
       {showCartaPorteModal && (
