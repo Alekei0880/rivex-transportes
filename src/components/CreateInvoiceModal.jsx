@@ -3,6 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, FileText, Printer, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+// Función auxiliar para obtener la fecha/hora actual en formato ISO local (YYYY-MM-DDTHH:mm:ss)
+const getFormattedCurrentDate = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+};
+
 // Objeto de formulario adaptado a las variables del template
 const initialForm = {
   cp_total_distancia_recorrida: '',
@@ -88,8 +101,6 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSubmit }) {
       const value = key.startsWith('platform_')
         ? platforms[Number(key.split('_')[1])][key.endsWith('subtipo') ? 'subtipo' : 'placa']
         : form[key];
-      
-      
     });
 
     if (Object.keys(next).length) {
@@ -102,9 +113,13 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSubmit }) {
     // Verificamos si existe la segunda plataforma activada en el estado
     const tieneSegundaPlataforma = platforms.length > 1;
 
-    // Mapeo unificado para las plataformas con lógica condicional de espacios " "
+    // Fecha actual en tiempo real formateada como 2026-04-22T17:39:14
+    const currentDateFormatted = getFormattedCurrentDate();
+
+    // Mapeo unificado para las plataformas y fecha actual
     const customValues = {
       ...form,
+      current_date: currentDateFormatted,
       'rem1_subtipo': platforms[0]?.subtipo || ' ',
       'rem1_placa': platforms[0]?.placa || ' ',
       'rem1.subtipo': platforms[0]?.subtipo || ' ',
@@ -135,6 +150,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSubmit }) {
     if (onSubmit) {
       onSubmit({
         ...form,
+        current_date: currentDateFormatted,
         rem1: { subtipo: customValues['rem1_subtipo'], placa: customValues['rem1_placa'] },
         rem2: { subtipo: customValues['rem2_subtipo'], placa: customValues['rem2_placa'] }
       });
